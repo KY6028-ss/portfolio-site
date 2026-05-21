@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Scaffold App" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Scaffold App">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+  </head>
+
+  <body style="font-family: sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f4f4;">
+    <nav style="background: #333; color: #fff; padding: 1rem; margin-bottom: 2rem;">
+      <div style="max-width: 800px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="margin: 0; font-size: 1.5rem;"><%= link_to "My Portfolio", profile_path, style: "color: white; text-decoration: none;" %></h1>
+        <ul style="list-style: none; display: flex; gap: 1rem; margin: 0; padding: 0;">
+          <li><%= link_to "Profile", profile_path, style: "color: white; text-decoration: none;" %></li>
+          <li><%= link_to "Portfolios", portfolios_path, style: "color: white; text-decoration: none;" %></li>
+          <li><%= link_to "Blog", blogs_path, style: "color: white; text-decoration: none;" %></li>
+          <li><%= link_to "News", announcements_path, style: "color: white; text-decoration: none;" %></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main style="max-width: 800px; margin: 0 auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <%= yield %>
+    </main>
+
+    <footer style="text-align: center; padding: 2rem; color: #666;">
+      <p>&copy; 2026 My Portfolio Site</p>
+    </footer>
+  </body>
+</html>

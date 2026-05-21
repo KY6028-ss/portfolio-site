@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  rails_app:
+    build:
+      context: ./rails_app
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./rails_app:/app
+    environment:
+      - RAILS_ENV=development
+      - AI_API_URL=http://python_ai:8000/api/chat
+    depends_on:
+      - python_ai
+
+  python_ai:
+    build:
+      context: ./python_ai
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./python_ai:/app
+    env_file:
+      - ./python_ai/.env

@@ -1,0 +1,6 @@
+<h1><%= @announcement.title %></h1>
+<p><time><%= @announcement.published_at.strftime('%Y-%m-%d %H:%M') %></time></p>
+<div>
+  <%= simple_format(@announcement.content) %>
+</div>
+<%= link_to '一覧に戻る', announcements_path %>
