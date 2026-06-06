@@ -11,19 +11,30 @@
 
 ## セットアップ
 
-### 1. Rails アプリケーション
-```bash
-cd rails_app
-bundle install
-bin/rails db:migrate db:seed
-bin/rails server
-```
+### 1. Rails アプリケーション & Python AI サービス　起動
+```bash(ルートディレクトリ)
+アプリをgemやpipのインストールから起動する（一番基本）:
+docker compose up --build -d
 
-### 2. Python AI サービス
-```bash
-cd python_ai
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+アプリをgemのインストールから起動する（Railsのみ）:
+docker-compose up --build -d rails
+
+アプリをpipのインストールから起動する（Pythonのみ）:
+docker-compose up --build -d python
+
+アプリを起動する(ライブラリのインストールなし)
+docker compose up -d
+```
+### 1. Rails アプリケーション & Python AI サービス　停止
+```bash(ルートディレクトリ)
+アプリを安全に停止する（一番基本）:
+docker compose down
+
+データ（データベースなど）も含めて完全にリセットしたい場合:
+docker compose down -v
+
+停止したかどうかの確認コマンド:
+docker compose ps
 ```
 
 ## AIチャット機能

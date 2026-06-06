@@ -1,4 +1,4 @@
-class CreateAnnouncements < ActiveRecord::Migration[7.0]
+class CreateAnnouncements < ActiveRecord::Migration[8.1]
   def change
     create_table :announcements do |t|
       t.string :title, null: false

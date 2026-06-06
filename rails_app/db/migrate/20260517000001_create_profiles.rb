@@ -1,4 +1,4 @@
-class CreateProfiles < ActiveRecord::Migration[7.0]
+class CreateProfiles < ActiveRecord::Migration[8.1]
   def change
     create_table :profiles do |t|
       t.string :name, null: false
