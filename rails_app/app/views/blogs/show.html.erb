@@ -1,5 +1,5 @@
 <h1><%= @blog.title %></h1>
-<p><time><%= @blog.published_at.strftime('%Y-%m-%d') %></time></p>
+<p><time><%= @blog.published_at&.strftime('%Y-%m-%d') %></time></p>
 <div class="blog-content">
   <%= markdown(@blog.content) %>
 </div>

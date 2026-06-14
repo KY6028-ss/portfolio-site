@@ -347,3 +347,17 @@ yarn-debug.log*
 **/storage/*
 !**/storage/.keep
 /public/uploads
+
+# === portfolio-site: 再生成物 / ローカル設定（コミットしない） ===
+
+# Python AI: FAISS ベクトルインデックス（python_ai/data/portfolio_data.md から再生成可能）
+# 知識ソースの portfolio_data.md は管理対象として残す
+python_ai/faiss_index/
+
+# Python キャッシュ
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# エディタ設定（個人環境）
+.vscode/

@@ -36,6 +36,11 @@ docker compose down -v
 停止したかどうかの確認コマンド:
 docker compose ps
 ```
+### 1. Rails アプリケーション & Python AI サービス　再起動
+
+docker compose restart python_ai
+
+docker compose restart rails
 
 ## AIチャット機能
 プロフィールの詳細ページからAIアシスタントに質問することができます。

@@ -1,6 +1,6 @@
 class BlogsController < ApplicationController
   def index
-    @blogs = Blog.published.recent
+    @pagy, @blogs = pagy(Blog.published.recent)
   end
 
   def show
