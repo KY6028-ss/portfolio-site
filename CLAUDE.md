@@ -85,13 +85,16 @@ rails_app/
 │       ├── portfolios/
 │       └── profiles/
 ├── config/
-│   └── routes.rb
+│   ├── routes.rb          # /up（Rails標準ヘルス）含む
+│   └── initializers/pagy.rb
 ├── db/migrate/
 │   ├── ..._create_portfolios.rb
 │   └── ..._create_blogs.rb
 └── spec/
     ├── models/
-    └── requests/
+    ├── requests/
+    ├── services/
+    └── views/
 ```
 
 ---
@@ -106,11 +109,12 @@ rails_app/
 2. **`Profile.current` の非決定的挙動** — `order(:id).first` に修正（`app/models/profile.rb`）。テスト: `spec/models/profile_spec.rb`
 3. **ページネーション** — Pagy 導入。`announcements` / `blogs` / `portfolios` の index に適用（1ページ10件）。テスト: `spec/requests/blogs_spec.rb`
 4. **Python AI ヘルスチェック** — `GET /health` を `RAGService.is_ready` 連動で実装済み（`python_ai/app/main.py`）。
+5. **Docker healthcheck** — `docker-compose.yml` の両サービスに healthcheck 定義済み。`rails_app` は Rails 標準 `/up`（`routes.rb`）、`python_ai` は `/health` を監視。`rails_app` は `python_ai` の healthy を待って起動（`condition: service_healthy`）。`docker compose up` で両コンテナ (healthy) を確認済み。
 
 ### 🟡 残課題
 
-5. **`generate_files.py` でコード管理** — Pythonの文字列としてRailsコードを管理しており保守困難。本番コードは個別ファイルをGitで直接管理すること（参照専用）。
-6. **Docker healthcheck の設定** — `/health` は実装済みだが、`docker-compose.yml` への healthcheck 定義は未設定。
+6. **`generate_files.py` でコード管理** — Pythonの文字列としてRailsコードを管理しており保守困難。本番コードは個別ファイルをGitで直接管理すること（参照専用）。
+7. **デプロイ未実施** — Kamal 2 / Fly.io でのデプロイは Phase 1 の最終項目として未着手。
 
 ---
 
@@ -175,7 +179,7 @@ cd rails_app && bundle exec rails db:migrate
 - [x] `/health` エンドポイント追加
 - [x] `main.py` を Gemini（RAG）に書き換え（→ [ADR-004](docs/adr/0004-rag-ai-service.md)）
 - [x] Pagy でページネーション実装（Phase 2 から前倒し）
-- [ ] `docker-compose.yml` に healthcheck 定義を追加
+- [x] `docker-compose.yml` に healthcheck 定義を追加（`/up` / `/health`）
 - [ ] Kamal 2 / Fly.io でデプロイ
 
 ### Phase 2 — Rails 8 モダン化
@@ -209,5 +213,7 @@ cd rails_app && bundle exec rails db:migrate
 
 - `python_ai/.env` は `.gitignore` に含まれていること（APIキー漏洩防止）
 - `generate_files.py` / `generate_ai_files.py` はスキャフォールド用スクリプトであり、本番コードではない
-- テスト環境: `spec/rails_helper.rb` は実 Rails 環境を読み込む構成（`rspec-rails` 8）。ホストの Ruby は 3.0 のため、テストは Docker 上（Ruby 3.2+）で `bundle exec rspec` 実行すること
-- `python_ai/faiss_index/`・`python_ai/data/` の Git 管理方針: インデックスは再生成可能なため `.gitignore` 候補。知識ソース（`portfolio_data.md`）は管理対象
+- テスト環境: `spec/rails_helper.rb` は実 Rails 環境を読み込む構成（`rspec-rails` 8）。ホストの Ruby は 3.0 のため、テストは Docker 上（Ruby 4.0.5）で実行すること:
+  `docker compose run --rm --no-deps -e RAILS_ENV=test rails_app bash -c "bin/rails db:test:prepare && bundle exec rspec"`
+- Git 管理方針（`.gitignore` 反映済み）: `python_ai/faiss_index/`（再生成可能）・`.vscode/`・Python キャッシュは除外。知識ソース `python_ai/data/portfolio_data.md` は管理対象
+- WSL2 注意: リポジトリが `/mnt/c`（9p FS）上にあると Docker のビルド/起動が遅い。高速化には WSL ネイティブ FS（ext4, `~/`）への移設が有効
