@@ -2,8 +2,9 @@
 <div class="blog-list">
   <% @blogs.each do |blog| %>
     <article class="blog-item">
-      <time><%= blog.published_at.strftime('%Y-%m-%d') %></time>
+      <time><%= blog.published_at&.strftime('%Y-%m-%d') %></time>
       <h2><%= link_to blog.title, blog_path(blog) %></h2>
     </article>
   <% end %>
 </div>
+<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

@@ -30,5 +30,15 @@ RSpec.describe Profile, type: :model do
         expect(Profile.current.name).to eq '既存のユーザー'
       end
     end
+
+    context 'レコードが複数存在する場合' do
+      it 'id順で最小（最古）のレコードが決定的に返されること' do
+        first = Profile.create!(name: '一人目')
+        Profile.create!(name: '二人目')
+        Profile.create!(name: '三人目')
+
+        expect(Profile.current).to eq first
+      end
+    end
   end
 end

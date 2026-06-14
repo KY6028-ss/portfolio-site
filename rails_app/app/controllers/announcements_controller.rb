@@ -1,6 +1,6 @@
 class AnnouncementsController < ApplicationController
   def index
-    @announcements = Announcement.published.recent
+    @pagy, @announcements = pagy(Announcement.published.recent)
   end
 
   def show

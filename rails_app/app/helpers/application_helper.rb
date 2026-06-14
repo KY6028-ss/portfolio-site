@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include Pagy::Frontend
+
   def markdown(text)
     return "" if text.blank?
     Commonmarker.to_html(text).html_safe

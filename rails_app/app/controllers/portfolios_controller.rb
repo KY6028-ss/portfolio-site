@@ -1,6 +1,6 @@
 class PortfoliosController < ApplicationController
   def index
-    @portfolios = Portfolio.recent
+    @pagy, @portfolios = pagy(Portfolio.recent)
   end
 
   def show
