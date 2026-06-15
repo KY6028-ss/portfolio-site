@@ -9,3 +9,4 @@
 | [ADR-002](0002-modern-stack-migration.md) | モダンスタック移行 | Accepted |
 | [ADR-003](0003-final-stack.md) | 最終スタック確定 | Accepted |
 | [ADR-004](0004-rag-ai-service.md) | AIサービスを RAG 構成に拡張 | Accepted |
+| [ADR-005](0005-deploy-kamal-two-service.md) | Kamal 2 による2サービス同居デプロイ | Accepted |
