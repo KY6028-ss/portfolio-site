@@ -1,6 +1,11 @@
-<h1><%= @announcement.title %></h1>
-<p><time><%= @announcement.published_at&.strftime('%Y-%m-%d %H:%M') %></time></p>
-<div>
-  <%= simple_format(@announcement.content) %>
-</div>
-<%= link_to '一覧に戻る', announcements_path %>
+<% content_for :title, @announcement.title %>
+<% content_for :description, truncate(strip_tags(@announcement.content), length: 120) %>
+
+<article>
+  <h1><%= @announcement.title %></h1>
+  <p><%= format_date(@announcement.published_at, with_time: true) %></p>
+  <div class="prose">
+    <%= simple_format(@announcement.content) %>
+  </div>
+  <%= link_to "一覧に戻る", announcements_path %>
+</article>

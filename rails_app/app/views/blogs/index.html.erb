@@ -1,10 +1,8 @@
+<% content_for :title, "技術ブログ" %>
+<% content_for :description, "日々の学習記録・技術的な気づき・OSS活動の進捗を発信しています。" %>
+
 <h1>技術ブログ</h1>
-<div class="blog-list">
-  <% @blogs.each do |blog| %>
-    <article class="blog-item">
-      <time><%= blog.published_at&.strftime('%Y-%m-%d') %></time>
-      <h2><%= link_to blog.title, blog_path(blog) %></h2>
-    </article>
-  <% end %>
+<div class="post-list">
+  <%= render @blogs %>
 </div>
 <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
