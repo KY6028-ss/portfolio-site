@@ -1,0 +1,24 @@
+# Python AI サービス用 .dockerignore
+
+# Git
+.git/
+.gitignore
+
+# シークレット（イメージに含めない）
+.env
+.env.*
+
+# FAISS インデックスは実行時に data/portfolio_data.md から再生成・永続化する
+faiss_index/
+
+# Python キャッシュ / テスト
+__pycache__/
+*.py[cod]
+.pytest_cache/
+tests/
+
+# 知識ソースのサンプル（実データ portfolio_data.md のみイメージに含める）
+data/portfolio_data.example.md
+
+# エディタ
+.vscode/
