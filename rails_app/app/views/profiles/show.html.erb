@@ -1,28 +1,33 @@
+<% content_for :title, "このサイトについて" %>
+
 <h1>このサイトについて</h1>
 <h2>プロフィール</h2>
 <p><strong>名前:</strong> <%= @profile.name %></p>
-<div>
+<section>
   <h3>自己紹介</h3>
-  <%= simple_format(@profile.bio) %>
-</div>
-<div>
+  <div class="prose"><%= simple_format(@profile.bio) %></div>
+</section>
+<section>
   <h3>サイトの趣旨</h3>
-  <%= simple_format(@profile.site_description) %>
-</div>
-<hr style="margin-top: 40px;">
+  <div class="prose"><%= simple_format(@profile.site_description) %></div>
+</section>
+
+<hr>
+
 <h2>🤖 AIアシスタントに質問する</h2>
 <p>ポートフォリオやスキルについて、AIが直接お答えします。</p>
 
 <%= form_with url: chat_profile_path, method: :post, local: true do |form| %>
-  <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <%= form.text_field :message, value: @user_message, placeholder: "例: あなたのスキルを教えてください", style: "flex-grow: 1; padding: 10px; border-radius: 4px; border: 1px solid #ccc;" %>
-    <%= form.submit "質問する", style: "padding: 10px 20px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px;" %>
+  <div class="chat-form">
+    <%= form.label :message, "AIへの質問", class: "visually-hidden" %>
+    <%= form.text_field :message, value: @user_message, placeholder: "例: あなたのスキルを教えてください", class: "field" %>
+    <%= form.submit "質問する", class: "btn btn--primary" %>
   </div>
 <% end %>
 
 <% if @ai_reply.present? %>
-  <div style="padding: 15px; background-color: #e6f7ff; border-left: 5px solid #007bff; border-radius: 4px;">
+  <div class="ai-reply">
     <strong>🤖 AIからの回答:</strong>
-    <p style="margin-top: 10px; white-space: pre-wrap;"><%= @ai_reply %></p>
+    <p class="ai-reply__body"><%= @ai_reply %></p>
   </div>
 <% end %>

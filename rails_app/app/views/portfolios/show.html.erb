@@ -1,11 +1,16 @@
-<h1><%= @portfolio.title %></h1>
-<% if @portfolio.image_url.present? %>
-  <%= image_tag @portfolio.image_url, alt: @portfolio.title %>
-<% end %>
-<div>
-  <%= simple_format(@portfolio.description) %>
-</div>
-<% if @portfolio.url.present? %>
-  <p><%= link_to "プロジェクトのWebサイトへ", @portfolio.url, target: "_blank", rel: "noopener" %></p>
-<% end %>
-<%= link_to '一覧に戻る', portfolios_path %>
+<% content_for :title, @portfolio.title %>
+<% content_for :description, truncate(@portfolio.description, length: 120) %>
+
+<article>
+  <h1><%= @portfolio.title %></h1>
+  <% if @portfolio.image_url.present? %>
+    <%= image_tag @portfolio.image_url, alt: @portfolio.title, loading: "lazy" %>
+  <% end %>
+  <div class="prose">
+    <%= simple_format(@portfolio.description) %>
+  </div>
+  <% if @portfolio.url.present? %>
+    <p><%= link_to "プロジェクトのWebサイトへ", @portfolio.url, target: "_blank", rel: "noopener" %></p>
+  <% end %>
+  <%= link_to "一覧に戻る", portfolios_path %>
+</article>
