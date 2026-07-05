@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // 旧スタック（クリーンアップ時にこの2行ごと削除）
+    "rails_app/**",
+    "python_ai/**",
   ]),
 ]);
 
