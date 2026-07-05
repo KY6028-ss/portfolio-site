@@ -1,8 +1,0 @@
-<% content_for :title, "ポートフォリオ / 実績" %>
-<% content_for :description, "OSS貢献・技術スタック・開発プロダクトをまとめた実績一覧です。" %>
-
-<h1>ポートフォリオ / 実績</h1>
-<div class="card-grid">
-  <%= render @portfolios %>
-</div>
-<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

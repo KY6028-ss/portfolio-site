@@ -6,8 +6,11 @@
 
 ## プロジェクト概要
 
-個人ポートフォリオサイト。Rails 8 モノリス + Python AI（**RAG / Gemini 2.5 Flash**）の2サービス構成。
-訪問者はプロフィール・実績・技術ブログを閲覧でき、オーナー情報に基づく RAG ベースのAIチャットで質問もできる。
+個人ポートフォリオサイト。**Next.js（App Router）+ TypeScript + Tailwind CSS v4** の単一アプリ。
+コンテンツは `content/` 配下の Markdown ファイルで管理し、DB は使わない。全ページ SSG。
+
+2026-07-05 に Rails 8 + Python FastAPI（RAG）の2サービス構成から全面移行した（→ [ADR-006](docs/adr/0006-nextjs-rewrite.md)）。
+AI チャット機能は移行時にスコープ外とした。
 
 **リポジトリ:** https://github.com/KY6028-ss/portfolio-site
 
@@ -16,204 +19,52 @@
 ## アーキテクチャ
 
 ```
-portfolio-site/
-├── rails_app/        # Rails 8 本体（Web UI + DB）
-└── python_ai/        # FastAPI + RAG（LangChain + FAISS + Gemini）AIチャットサービス
+content/                 # コンテンツ（Markdown + frontmatter）— 追加/編集はここだけで完結
+├── profile.md           # プロフィール（name / bio / siteDescription、トップページに表示）
+├── blog/*.md            # 技術ブログ（title / publishedAt + 本文Markdown）
+├── announcements/*.md   # お知らせ（同上）
+└── portfolio/*.md       # 実績（title / url? / imageUrl? / createdAt + 本文=説明）
+src/
+├── app/                 # ルート: / , /blogs(+[slug]), /announcements(+[slug]), /portfolios(+[slug])
+├── components/          # Header / Footer / PostList / PortfolioCard / Markdown
+└── lib/
+    ├── content.ts       # コンテンツローダー（型 + 公開判定。テストは CONTENT_ROOT で差し替え）
+    ├── format.ts        # 日付表記（JST固定 YYYY-MM-DD [HH:MM]）/ truncate
+    └── site.ts          # サイト名・既定 description
 ```
 
-### サービス構成（docker-compose.yml）
+### 重要な仕様
 
-| サービス    | ポート | 役割                        |
-|------------|--------|----------------------------|
-| rails_app  | 3000   | メインWebアプリ              |
-| python_ai  | 8000   | AIチャットAPI（RAG / Gemini連携） |
-
-Rails → Python AI の通信は `AI_API_URL=http://python_ai:8000/api/chat` 経由。
-
----
-
-## 技術スタック（確定 ADR-003）
-
-### Rails 8（rails_app/）
-- **Ruby:** `.ruby-version` 参照
-- **フレームワーク:** Rails 8
-- **フロントエンド:** Hotwire（Turbo 8 + Morphing）、Stimulus
-- **CSS:** Tailwind CSS（Node.js不要のスタンドアロンビルド）
-- **アセット:** Propshaft（`--asset-pipeline=propshaft` で生成）
-- **UIコンポーネント:** Phlex または ViewComponent
-- **非同期処理:** Solid Queue（Redis不要）
-- **キャッシュ:** Solid Cache（Redis不要）
-- **WebSocket:** Solid Cable（Redis不要）
-- **DB:** SQLite（開発・本番） または PostgreSQL
-- **ページネーション:** Pagy
-- **テスト:** RSpec
-
-### Python AI（python_ai/）— RAG 構成（→ [ADR-004](docs/adr/0004-rag-ai-service.md)）
-- **フレームワーク:** FastAPI
-- **オーケストレーション:** LangChain 1.x（LCEL）
-- **AIモデル:** Gemini 2.5 Flash（`langchain-google-genai`）
-- **埋め込み:** `gemini-embedding-001`
-- **ベクトルストア:** FAISS（`faiss-cpu`、`python_ai/faiss_index/` に永続化）
-- **知識ソース:** `python_ai/data/portfolio_data.md`
-- **環境変数:** `python_ai/.env` に `GEMINI_API_KEY` を設定
-
-### デプロイ（目標）
-- **ツール:** Kamal 2
-- **ホスト:** VPS（Hetzner CX22 推奨）または Fly.io
-
----
-
-## ディレクトリ構造（rails_app/）
-
-```
-rails_app/
-├── app/
-│   ├── controllers/
-│   │   ├── application_controller.rb
-│   │   ├── announcements_controller.rb
-│   │   ├── blogs_controller.rb
-│   │   ├── portfolios_controller.rb
-│   │   └── profiles_controller.rb
-│   ├── models/
-│   │   ├── announcement.rb    # scope: published, recent
-│   │   ├── blog.rb            # scope: published, recent
-│   │   ├── portfolio.rb       # scope: recent
-│   │   └── profile.rb         # Profile.current でシングルトン取得
-│   └── views/
-│       ├── announcements/
-│       ├── blogs/
-│       ├── portfolios/
-│       └── profiles/
-├── config/
-│   ├── routes.rb          # /up（Rails標準ヘルス）含む
-│   └── initializers/pagy.rb
-├── db/migrate/
-│   ├── ..._create_portfolios.rb
-│   └── ..._create_blogs.rb
-└── spec/
-    ├── models/
-    ├── requests/
-    ├── services/
-    └── views/
-```
-
----
-
-## バグ修正状況
-
-### ✅ 修正済み（2026-06-14）
-
-1. **`published_at` nil クラッシュ** — `announcements`/`blogs` の index・show ビューを `published_at&.strftime(...)` の nil ガードに修正。
-   - 補足: `published` スコープ（`published_at <= now`）が nil を「未公開（下書き）」として扱うため、presence バリデーションは**あえて付けない**（下書き運用を維持）。ガードは多層防御。
-   - テスト: `spec/views/blogs/index_spec.rb`
-2. **`Profile.current` の非決定的挙動** — `order(:id).first` に修正（`app/models/profile.rb`）。テスト: `spec/models/profile_spec.rb`
-3. **ページネーション** — Pagy 導入。`announcements` / `blogs` / `portfolios` の index に適用（1ページ10件）。テスト: `spec/requests/blogs_spec.rb`
-4. **Python AI ヘルスチェック** — `GET /health` を `RAGService.is_ready` 連動で実装済み（`python_ai/app/main.py`）。
-5. **Docker healthcheck** — `docker-compose.yml` の両サービスに healthcheck 定義済み。`rails_app` は Rails 標準 `/up`（`routes.rb`）、`python_ai` は `/health` を監視。`rails_app` は `python_ai` の healthy を待って起動（`condition: service_healthy`）。`docker compose up` で両コンテナ (healthy) を確認済み。
-
-### 🟡 残課題
-
-6. **`generate_files.py` でコード管理** — Pythonの文字列としてRailsコードを管理しており保守困難。本番コードは個別ファイルをGitで直接管理すること（参照専用）。
-7. **デプロイ未実施** — Kamal 2 / Fly.io でのデプロイは Phase 1 の最終項目として未着手。
-
----
-
-## Python AI セットアップ
-
-### 環境変数（python_ai/.env）
-
-```bash
-GEMINI_API_KEY=your_key_here
-# 取得先: https://aistudio.google.com/apikey
-```
-
-### 構成（RAG）
-
-実装は **RAG パイプライン**。詳細は [ADR-004](docs/adr/0004-rag-ai-service.md)。
-
-- `python_ai/app/main.py` — FastAPI。`POST /api/chat` と `GET /health`（`is_ready` 連動）。
-- `python_ai/services/rag_service.py` — LangChain LCEL チェーン（retriever → prompt → Gemini 2.5 Flash → StrOutputParser）。
-- `python_ai/data/portfolio_data.md` — 知識ソース（編集したら `faiss_index/` を再生成）。
-- `GEMINI_API_KEY` 未設定時は RAG を初期化せず、調整中メッセージを返す（クラッシュしない）。
-
-### requirements.txt（抜粋）
-
-```
-fastapi>=0.136.0
-uvicorn>=0.35.0
-langchain==1.3.7
-langchain-google-genai>=2.0.0
-langchain-community>=0.4.0
-faiss-cpu>=1.9.0
-python-dotenv>=1.0.1
-```
+- **公開判定（旧 Rails の `published` スコープ相当）:** `publishedAt` が存在し現在時刻以下のときだけ公開。
+  無い/未来 = 下書き。ビルド時に評価されるため、未来日時の記事は再デプロイで公開される。
+- **slug = ファイル名**（`.md` を除いたもの）。詳細ページは `generateStaticParams` + `dynamicParams = false` で、
+  未公開・不明 slug は 404（旧 Rails の挙動と一致）。
+- **デザイントークン:** 旧 Rails 版 `application.css` の CSS 変数を `src/app/globals.css` の `@theme inline` に移植。
+  色は必ずトークン（`bg-canvas` / `text-foreground` / `text-muted` / `text-accent` / `border-border-default` 等）経由で使う。
+  ダークモードは `prefers-color-scheme` で変数を上書きするだけ。
 
 ---
 
 ## 開発コマンド
 
 ```bash
-# 全サービス起動
-docker compose up
-
-# Railsのみ
-cd rails_app && bundle exec rails server
-
-# Python AIのみ
-cd python_ai && uvicorn app.main:app --reload
-
-# テスト実行
-cd rails_app && bundle exec rspec
-
-# DBマイグレーション
-cd rails_app && bundle exec rails db:migrate
+npm run dev        # 開発サーバー (http://localhost:3000)
+npm run build      # 本番ビルド（全ルートが Static/SSG になることを確認）
+npm test           # Vitest（src/lib/content.test.ts、fixtures は src/lib/__fixtures__/）
+npm run lint       # ESLint
 ```
 
 ---
 
-## 今後のロードマップ
+## デプロイ
 
-### Phase 1 — バグ修正・公開（優先）
-- [x] `published_at` nil バグ修正
-- [x] `Profile.current` に `order(:id)` 追加
-- [x] `/health` エンドポイント追加
-- [x] `main.py` を Gemini（RAG）に書き換え（→ [ADR-004](docs/adr/0004-rag-ai-service.md)）
-- [x] Pagy でページネーション実装（Phase 2 から前倒し）
-- [x] `docker-compose.yml` に healthcheck 定義を追加（`/up` / `/health`）
-- [ ] Kamal 2 / Fly.io でデプロイ
-
-### Phase 2 — Rails 8 モダン化
-- [ ] Propshaft + Tailwind CSS 導入
-- [ ] Solid Queue / Cache / Cable 設定
-- [x] Pagy でページネーション実装
-- [ ] Phlex でUIコンポーネント化
-- [ ] Turbo Streams でチャットをリアルタイム化
-
-### Phase 3 — AIエージェント強化
-- [ ] Gemini Tool Use でポートフォリオ/ブログ検索ツールを実装
-- [ ] チャット履歴の永続化（`conversations` テーブル）
-- [ ] GitHub Actions + Kamal 2 で CI/CD 自動化
+- **Vercel**（ルートディレクトリ = リポジトリルート、追加設定不要）
 
 ---
 
-## ADR（アーキテクチャ決定記録）サマリー
+## 履歴・注意事項
 
-詳細は [`docs/adr/`](docs/adr/) を参照。
-
-| ADR | タイトル | 決定 |
-|-----|---------|------|
-| [ADR-001](docs/adr/0001-deploy-strategy.md) | デプロイ戦略 | Rails + Fly.io（Kamal 2へ移行予定） |
-| [ADR-002](docs/adr/0002-modern-stack-migration.md) | モダンスタック移行 | Rails 8 + Hotwire + Gemini AI |
-| [ADR-003](docs/adr/0003-final-stack.md) | 最終スタック確定 | Solid三兄弟 + Kamal 2 + Gemini 2.0 Flash |
-| [ADR-004](docs/adr/0004-rag-ai-service.md) | AIサービスを RAG 構成に拡張 | LangChain + FAISS + Gemini 2.5 Flash |
-
----
-
-## 注意事項
-
-- `python_ai/.env` は `.gitignore` に含まれていること（APIキー漏洩防止）
-- `generate_files.py` / `generate_ai_files.py` はスキャフォールド用スクリプトであり、本番コードではない
-- テスト環境: `spec/rails_helper.rb` は実 Rails 環境を読み込む構成（`rspec-rails` 8）。ホストの Ruby は 3.0 のため、テストは Docker 上（Ruby 4.0.5）で実行すること:
-  `docker compose run --rm --no-deps -e RAILS_ENV=test rails_app bash -c "bin/rails db:test:prepare && bundle exec rspec"`
-- Git 管理方針（`.gitignore` 反映済み）: `python_ai/faiss_index/`（再生成可能）・`.vscode/`・Python キャッシュは除外。知識ソース `python_ai/data/portfolio_data.md` は管理対象
-- WSL2 注意: リポジトリが `/mnt/c`（9p FS）上にあると Docker のビルド/起動が遅い。高速化には WSL ネイティブ FS（ext4, `~/`）への移設が有効
+- 旧スタックの設計判断は [`docs/adr/`](docs/adr/)（ADR-001〜005）に記録。ADR-006 が移行の決定記録
+- 重要なアーキテクチャ変更をしたら ADR を番号付きで追加すること
+- AI チャットを再実装する場合は Next.js Route Handler + Vercel AI SDK 等を想定
+  （旧実装の知識ソース形式は git 履歴の `python_ai/data/portfolio_data.md` を参照）
