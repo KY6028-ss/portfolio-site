@@ -85,11 +85,13 @@ describe("getPortfolios", () => {
 });
 
 describe("getProfile", () => {
-  it("frontmatter からプロフィールを読む", () => {
+  it("frontmatter と本文からプロフィールを読む", () => {
     const profile = getProfile();
     expect(profile.name).toBe("テスト 太郎");
-    expect(profile.bio).toBe("一行目\n二行目");
+    expect(profile.role).toBe("Test Engineer");
+    expect(profile.links).toEqual([{ label: "GitHub", url: "https://github.com/example" }]);
     expect(profile.siteDescription).toBe("テスト用の説明");
+    expect(profile.body).toBe("### 自己紹介\n\nテスト用の本文");
   });
 });
 

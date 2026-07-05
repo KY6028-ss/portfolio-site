@@ -8,6 +8,10 @@ type Props = {
 };
 
 export default function PostList({ posts, basePath }: Props) {
+  if (posts.length === 0) {
+    return <p className="text-muted">記事はまだありません。</p>;
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {posts.map((post) => (

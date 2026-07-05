@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Markdown from "@/components/Markdown";
 import { getProfile } from "@/lib/content";
 import { SITE_NAME } from "@/lib/site";
 
@@ -16,11 +17,20 @@ export default function ProfilePage() {
       <h2>プロフィール</h2>
       <p>
         <strong>名前:</strong> {profile.name}
+        {profile.role && <>（{profile.role}）</>}
       </p>
-      <section>
-        <h3>自己紹介</h3>
-        <p className="whitespace-pre-line break-words">{profile.bio}</p>
-      </section>
+      {profile.links.length > 0 && (
+        <ul className="list-none flex flex-wrap gap-4 p-0">
+          {profile.links.map((link) => (
+            <li key={link.url}>
+              <a href={link.url} target="_blank" rel="noopener">
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Markdown>{profile.body}</Markdown>
       <section>
         <h3>サイトの趣旨</h3>
         <p className="whitespace-pre-line break-words">{profile.siteDescription}</p>

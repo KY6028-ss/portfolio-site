@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# サイト公開用の元データ（要確認メモ・未公開情報を含むためローカル管理）
+/portfolio_data.md

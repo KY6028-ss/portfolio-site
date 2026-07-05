@@ -20,10 +20,17 @@ export type PortfolioItem = {
   createdAt: Date;
 };
 
+export type ProfileLink = {
+  label: string;
+  url: string;
+};
+
 export type Profile = {
   name: string;
-  bio: string;
+  role?: string;
+  links: ProfileLink[];
   siteDescription: string;
+  body: string;
 };
 
 // テストからは CONTENT_ROOT でフィクスチャに差し替えられる
@@ -100,11 +107,21 @@ export function getPortfolio(slug: string): PortfolioItem | null {
   return toPortfolioItem(slug, matter(fs.readFileSync(filePath, "utf8")));
 }
 
+function toLinks(value: unknown): ProfileLink[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is { label: unknown; url: unknown } => typeof item === "object" && item !== null)
+    .filter((item) => item.label && item.url)
+    .map((item) => ({ label: String(item.label), url: String(item.url) }));
+}
+
 export function getProfile(): Profile {
   const file = matter(fs.readFileSync(path.join(contentRoot(), "profile.md"), "utf8"));
   return {
     name: String(file.data.name ?? ""),
-    bio: String(file.data.bio ?? "").trim(),
+    role: file.data.role ? String(file.data.role) : undefined,
+    links: toLinks(file.data.links),
     siteDescription: String(file.data.siteDescription ?? "").trim(),
+    body: file.content.trim(),
   };
 }
