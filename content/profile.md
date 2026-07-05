@@ -21,7 +21,7 @@ Claude・Gemini APIを用いたLLM開発を軸に、ファインチューニン�
 ### スキル
 
 - **Python**: 基本文法(ループ・条件分岐)は理解、decorator/type hintsは学習中
-- **Ruby**: OSSプロジェクトでの実務利用。基礎文法は都度確認しながら
+- **Ruby**: OSSのコードを少し読んだ程度
 - **TypeScript**: AI生成コードの理解・修正レベル
-- **LLM関連**: Claude API, Gemini API, RAG実装(Gemini 2.5 Flash使用), LangChain学習中
-- **インフラ**: Next.js, FastAPI, Cloudflare Tunnel, Raspberry Pi 5(Hailo-8Lでのエッジ推論), Kamal 2でのデプロイ
+- **LLM関連**: Claude API, Gemini API, RAG実装(Gemini 2.5 Flash使用)を模索中
+- **Web開発**: FastAPI が少しわかる程度。git・Docker・Webの仕組みなどの基本を学習中
