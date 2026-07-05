@@ -1,8 +1,0 @@
-<% content_for :title, "お知らせ" %>
-<% content_for :description, "サイトやOSS活動に関するお知らせの一覧です。" %>
-
-<h1>お知らせ</h1>
-<div class="post-list">
-  <%= render @announcements %>
-</div>
-<%== pagy_nav(@pagy) if @pagy.pages > 1 %>

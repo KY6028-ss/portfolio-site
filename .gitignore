@@ -39,10 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# === legacy stack (rails_app / python_ai) — この節はクリーンアップ時に削除 ===
-rails_app/
-python_ai/
-.pytest_cache/
-__pycache__/
-.env
