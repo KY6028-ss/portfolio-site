@@ -1,5 +1,6 @@
 ---
 title: ポートフォリオサイトを Rails から Next.js に書き直した話
+publishedAt: "2026-07-05T14:35:51+09:00"
 ---
 
 このサイト、もともとは Rails 8 + Python (FastAPI) の2サービス構成でした。Gemini 2.5 Flash を使った RAG チャットを載せて、自宅の Raspberry Pi 5 + Cloudflare Tunnel でセルフホスティングする予定で作っていました。
