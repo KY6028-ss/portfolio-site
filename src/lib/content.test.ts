@@ -1,6 +1,7 @@
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
+  getLatestContentUpdate,
   getPost,
   getPortfolio,
   getPortfolios,
@@ -81,6 +82,21 @@ describe("getPortfolios", () => {
 
   it("存在しない slug は null", () => {
     expect(getPortfolio("no-such-work")).toBeNull();
+  });
+});
+
+describe("getLatestContentUpdate", () => {
+  it("全コンテンツの中で最新の公開日時を返す（未来日付は除外）", () => {
+    // fixture 内の最新は blog/newer-post の publishedAt（future-post は公開判定で除外される）
+    expect(getLatestContentUpdate()?.toISOString()).toBe(
+      new Date("2021-06-15T12:00:00+09:00").toISOString(),
+    );
+  });
+
+  it("コンテンツが無ければ null", () => {
+    process.env.CONTENT_ROOT = path.join(__dirname, "__fixtures__", "no-such-dir");
+    expect(getLatestContentUpdate()).toBeNull();
+    process.env.CONTENT_ROOT = fixtureRoot;
   });
 });
 

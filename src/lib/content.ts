@@ -107,6 +107,19 @@ export function getPortfolio(slug: string): PortfolioItem | null {
   return toPortfolioItem(slug, matter(fs.readFileSync(filePath, "utf8")));
 }
 
+// 全コンテンツの最新公開/作成日時（ヘッダーの「最終更新」表示用）。コンテンツが無ければ null
+export function getLatestContentUpdate(): Date | null {
+  const now = Date.now();
+  const times = [
+    ...getPublishedPosts("blog").map((p) => p.publishedAt.getTime()),
+    ...getPublishedPosts("announcements").map((p) => p.publishedAt.getTime()),
+    ...getPortfolios()
+      .map((p) => p.createdAt.getTime())
+      .filter((t) => t > 0 && t <= now),
+  ];
+  return times.length > 0 ? new Date(Math.max(...times)) : null;
+}
+
 function toLinks(value: unknown): ProfileLink[] {
   if (!Array.isArray(value)) return [];
   return value

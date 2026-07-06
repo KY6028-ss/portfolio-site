@@ -30,7 +30,7 @@ export default async function BlogPage({ params }: Props) {
       <h1>{post.title}</h1>
       <p>
         <time dateTime={post.publishedAt.toISOString()} className="text-muted text-sm">
-          {formatDate(post.publishedAt)}
+          {formatDate(post.publishedAt, true)}
         </time>
       </p>
       <Markdown>{post.content}</Markdown>
