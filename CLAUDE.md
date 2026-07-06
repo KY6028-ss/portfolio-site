@@ -52,6 +52,11 @@ npm run dev        # 開発サーバー (http://localhost:3000)
 npm run build      # 本番ビルド（全ルートが Static/SSG になることを確認）
 npm test           # Vitest（src/lib/content.test.ts、fixtures は src/lib/__fixtures__/）
 npm run lint       # ESLint
+
+# 記事作成（実行時刻を publishedAt / createdAt として frontmatter に自動記録）
+npm run new:blog -- "タイトル" [slug]          # 技術ブログ
+npm run new:announcement -- "タイトル" [slug]  # お知らせ
+npm run new:portfolio -- "タイトル" [slug]     # 実績
 ```
 
 ---
