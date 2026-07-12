@@ -107,17 +107,45 @@ export function getPortfolio(slug: string): PortfolioItem | null {
   return toPortfolioItem(slug, matter(fs.readFileSync(filePath, "utf8")));
 }
 
+export type RecentUpdate = {
+  title: string;
+  href: string;
+  label: "Blog" | "News" | "Portfolio";
+  date: Date;
+};
+
+// 全コンテンツ（ブログ・お知らせ・実績）を公開/作成日時の新しい順に統合した一覧（サイドバー表示用）
+export function getRecentUpdates(limit = 10): RecentUpdate[] {
+  const now = Date.now();
+  const updates: RecentUpdate[] = [
+    ...getPublishedPosts("blog").map((p) => ({
+      title: p.title,
+      href: `/blogs/${p.slug}`,
+      label: "Blog" as const,
+      date: p.publishedAt,
+    })),
+    ...getPublishedPosts("announcements").map((p) => ({
+      title: p.title,
+      href: `/announcements/${p.slug}`,
+      label: "News" as const,
+      date: p.publishedAt,
+    })),
+    ...getPortfolios()
+      // createdAt 無し(epoch 0)・未来日時の実績は載せない（公開判定に相当）
+      .filter((p) => p.createdAt.getTime() > 0 && p.createdAt.getTime() <= now)
+      .map((p) => ({
+        title: p.title,
+        href: `/portfolios/${p.slug}`,
+        label: "Portfolio" as const,
+        date: p.createdAt,
+      })),
+  ];
+  return updates.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, limit);
+}
+
 // 全コンテンツの最新公開/作成日時（ヘッダーの「最終更新」表示用）。コンテンツが無ければ null
 export function getLatestContentUpdate(): Date | null {
-  const now = Date.now();
-  const times = [
-    ...getPublishedPosts("blog").map((p) => p.publishedAt.getTime()),
-    ...getPublishedPosts("announcements").map((p) => p.publishedAt.getTime()),
-    ...getPortfolios()
-      .map((p) => p.createdAt.getTime())
-      .filter((t) => t > 0 && t <= now),
-  ];
-  return times.length > 0 ? new Date(Math.max(...times)) : null;
+  return getRecentUpdates(1)[0]?.date ?? null;
 }
 
 function toLinks(value: unknown): ProfileLink[] {

@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   getLatestContentUpdate,
   getPost,
+  getRecentUpdates,
   getPortfolio,
   getPortfolios,
   getProfile,
@@ -82,6 +83,25 @@ describe("getPortfolios", () => {
 
   it("存在しない slug は null", () => {
     expect(getPortfolio("no-such-work")).toBeNull();
+  });
+});
+
+describe("getRecentUpdates", () => {
+  it("全コンテンツを新しい順に統合して返す（未公開は除外）", () => {
+    expect(getRecentUpdates().map((u) => u.href)).toEqual([
+      "/blogs/newer-post",
+      "/portfolios/second-work",
+      "/announcements/hello",
+      "/blogs/older-post",
+      "/portfolios/first-work",
+    ]);
+  });
+
+  it("limit で件数を制限できる", () => {
+    const updates = getRecentUpdates(2);
+    expect(updates).toHaveLength(2);
+    expect(updates[0].label).toBe("Blog");
+    expect(updates[1].label).toBe("Portfolio");
   });
 });
 
