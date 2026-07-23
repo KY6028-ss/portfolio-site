@@ -22,9 +22,8 @@ Claude・Gemini APIを用いたLLM開発を軸に、ファインチューニン�
 
 - **Python**: 基本文法(ループ・条件分岐)は理解、decorator/type hintsは学習中
 - **Ruby**: OSSプロジェクトで基礎文法は都度確認しながら
-- **TypeScript**: AIでコードの生成のみ(理解は追いついてない...)
-- **LLM関連**: Claude API, Gemini API, RAG実装(Gemini 2.5 Flash使用), LangChain学習中
-- **インフラ**: Docker,Git.FastAPI,Vercel（すべて学習中）
+- **インフラ**: Docker,Git,FastAPI,Vercel（すべて今後学習予定、一旦後回し...）
+- **SQL**:書籍を使って学習中　←現在！！！
 
 ### 技術学習ロードマップ(2026年7月〜)
 ※私のプロンプトからClaudeに設計してもらっています。
